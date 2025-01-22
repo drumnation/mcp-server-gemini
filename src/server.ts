@@ -1,9 +1,10 @@
 import WebSocket from 'ws';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { MCPHandlers } from './handlers';
-import { ProtocolManager } from './protocol';
-import { ERROR_CODES } from './protocol';
-import { MCPRequest, NotificationMessage, ConnectionState } from './types';
+import { MCPHandlers } from './handlers.js';
+import { ProtocolManager } from './protocol.js';
+import { ERROR_CODES } from './protocol.js';
+import { MCPRequest, NotificationMessage, MCPMessage } from './types/protocols.js';
+import { ConnectionState } from './types/index.js';
 import http from 'http';
 
 export class MCPServer {
@@ -99,7 +100,7 @@ export class MCPServer {
             state.initialized = true;
           }
         } catch (error) {
-          this.sendError(ws, request.id, ERROR_CODES.SERVER_NOT_INITIALIZED, error.message);
+          this.sendError(ws, request.id, ERROR_CODES.SERVER_NOT_INITIALIZED, (error as Error).message);
           return;
         }
 
@@ -142,14 +143,14 @@ export class MCPServer {
     }));
   }
 
-  private handleError(ws: WebSocket, error: any): void {
+  private handleError(ws: WebSocket, error: unknown): void {
     const state = this.clients.get(ws);
-    this.logError('request', error, state);
+    this.logError('request', error as Error, state);
 
     if (error instanceof SyntaxError) {
       this.sendError(ws, null, ERROR_CODES.PARSE_ERROR, 'Invalid JSON');
-    } else if (error.code && ERROR_CODES[error.code]) {
-      this.sendError(ws, null, error.code, error.message);
+    } else if (typeof error === 'object' && error !== null && 'code' in error && 'message' in error) {
+      this.sendError(ws, null, (error as { code: number }).code, (error as { message: string }).message);
     } else {
       this.sendError(ws, null, ERROR_CODES.INTERNAL_ERROR, 'Internal server error');
     }
@@ -180,15 +181,15 @@ export class MCPServer {
     });
   }
 
-  private logError(type: string, error: Error, state?: ConnectionState): void {
+  private logError(type: string, error: Error | unknown, state?: ConnectionState): void {
     const errorLog = {
       timestamp: new Date().toISOString(),
       type,
-      error: {
+      error: error instanceof Error ? {
         name: error.name,
         message: error.message,
         stack: error.stack
-      },
+      } : String(error),
       connectionState: state ? {
         ip: state.ip,
         connectedAt: state.connectedAt,
@@ -239,5 +240,10 @@ export class MCPServer {
     ]);
     
     process.exit(0);
+  }
+
+  private cancelRequest(requestId: string | number): void {
+    // Implementation of cancelRequest
+    this.handlers.cancelRequest(requestId);
   }
 }

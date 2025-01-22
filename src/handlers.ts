@@ -1,4 +1,4 @@
-import { GenerativeModel } from '@google/generative-ai';
+import { GenerativeModel, GenerateContentResult } from '@google/generative-ai';
 import { 
   GenerateRequest, 
   GenerateResponse, 
@@ -7,9 +7,10 @@ import {
   StreamRequest,
   StreamResponse,
   CancelRequest,
-  ConfigureRequest
-} from './types';
-import { createInitializeResult, ERROR_CODES, validateRequest } from './protocol';
+  ConfigureRequest,
+  MCPError
+} from './types/protocols.js';
+import { createInitializeResult, ERROR_CODES, validateRequest, ProtocolManager } from './protocol.js';
 import EventEmitter from 'events';
 
 export class MCPHandlers extends EventEmitter {
@@ -17,14 +18,14 @@ export class MCPHandlers extends EventEmitter {
 
   constructor(
     private model: GenerativeModel, 
-    private protocol: any,
+    private protocol: ProtocolManager,
     private debug: boolean = false
   ) {
     super();
     this.activeRequests = new Map();
   }
 
-  private log(...args: any[]) {
+  private log(...args: unknown[]): void {
     if (this.debug) {
       console.log('[MCP Debug]', ...args);
     }
@@ -42,7 +43,7 @@ export class MCPHandlers extends EventEmitter {
   async handleGenerate(request: GenerateRequest): Promise<GenerateResponse> {
     this.log('Handling generate request:', request.params);
     
-    if (!validateRequest(request, ['prompt'])) {
+    if (!validateRequest(request)) {
       throw this.createError(ERROR_CODES.INVALID_PARAMS, 'Invalid or missing parameters');
     }
 
@@ -50,16 +51,8 @@ export class MCPHandlers extends EventEmitter {
     this.activeRequests.set(request.id, abortController);
 
     try {
-      const result = await this.model.generateContent(
-        request.params.prompt,
-        {
-          temperature: request.params.temperature,
-          maxOutputTokens: request.params.maxTokens,
-          stopSequences: request.params.stopSequences,
-        }
-      );
+      const result = await this.model.generateContent(request.params.prompt);
       const response = await result.response;
-
       this.activeRequests.delete(request.id);
 
       return {
@@ -87,7 +80,7 @@ export class MCPHandlers extends EventEmitter {
   async handleStream(request: StreamRequest): Promise<void> {
     this.log('Handling stream request:', request.params);
     
-    if (!validateRequest(request, ['prompt'])) {
+    if (!validateRequest(request)) {
       throw this.createError(ERROR_CODES.INVALID_PARAMS, 'Invalid or missing parameters');
     }
 
@@ -95,23 +88,21 @@ export class MCPHandlers extends EventEmitter {
     this.activeRequests.set(request.id, abortController);
 
     try {
-      const stream = await this.model.generateContentStream(
-        request.params.prompt,
-        {
-          temperature: request.params.temperature,
-          maxOutputTokens: request.params.maxTokens,
-          stopSequences: request.params.stopSequences,
-        }
-      );
+      const result = await this.model.generateContentStream(request.params.prompt);
 
-      for await (const chunk of stream) {
+      // Handle the stream chunks
+      for await (const chunk of result.stream) {
         const response: StreamResponse = {
           jsonrpc: '2.0',
           id: request.id,
           result: {
             type: 'stream',
             content: chunk.text(),
-            done: false
+            done: false,
+            metadata: {
+              timestamp: Date.now(),
+              model: 'gemini-pro'
+            }
           }
         };
         this.emit('response', response);
@@ -124,7 +115,11 @@ export class MCPHandlers extends EventEmitter {
         result: {
           type: 'stream',
           content: '',
-          done: true
+          done: true,
+          metadata: {
+            timestamp: Date.now(),
+            model: 'gemini-pro'
+          }
         }
       };
       this.emit('response', finalResponse);
@@ -222,7 +217,7 @@ export class MCPHandlers extends EventEmitter {
     }
   }
 
-  private createError(code: number, message: string) {
+  private createError(code: number, message: string): MCPError {
     return {
       code,
       message

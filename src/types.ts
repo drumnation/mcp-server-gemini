@@ -1,3 +1,5 @@
+import { MCPRequest, MCPResponse } from './types/protocols.js';
+
 // Existing interfaces...
 
 export interface ProgressParams {
@@ -30,6 +32,6 @@ export interface ShutdownRequest extends MCPRequest {
   method: 'shutdown';
 }
 
-export interface ExitNotification extends NotificationMessage {
+export interface ExitNotification {
   method: 'exit';
 }

@@ -1,0 +1,10 @@
+{ 
+    "context_initialization": {
+      "description": "Starting point for each interaction",
+      "steps": [
+        "Read '.brain/directory-structure.md'"
+        "Read '.brain/project-overview.md'"
+        "Read '.brain/tasks.md'"
+      ]
+    },
+}

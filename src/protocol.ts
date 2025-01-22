@@ -1,4 +1,4 @@
-import { ServerCapabilities, ServerInfo, InitializeResult, ProgressParams } from './types';
+import { ServerCapabilities, ServerInfo, InitializeResult, ProgressParams } from './types/server.js';
 
 export const PROTOCOL_VERSION = '2024-11-05';
 
@@ -32,6 +32,21 @@ export const SERVER_CAPABILITIES: ServerCapabilities = {
   logging: {}
 };
 
+export function validateRequest(request: any, requiredParams: string[] = ['prompt']): boolean {
+  if (!request || !request.params) {
+    return false;
+  }
+  return requiredParams.every(param => param in request.params);
+}
+
+export function createInitializeResult(): InitializeResult {
+  return {
+    protocolVersion: PROTOCOL_VERSION,
+    serverInfo: SERVER_INFO,
+    capabilities: SERVER_CAPABILITIES
+  };
+}
+
 export class ProtocolManager {
   private initialized = false;
   private shutdownRequested = false;
@@ -52,22 +67,6 @@ export class ProtocolManager {
 
   isShutdownRequested(): boolean {
     return this.shutdownRequested;
-  }
-
-  createInitializeResult(): InitializeResult {
-    return {
-      protocolVersion: PROTOCOL_VERSION,
-      serverInfo: SERVER_INFO,
-      capabilities: SERVER_CAPABILITIES
-    };
-  }
-
-  createProgressNotification(token: string | number, progress: number, total?: number): ProgressParams {
-    return {
-      progressToken: token,
-      progress,
-      total
-    };
   }
 
   validateState(method: string): void {

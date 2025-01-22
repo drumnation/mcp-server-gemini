@@ -23,29 +23,6 @@ export interface MCPError {
   data?: any;
 }
 
-export interface StreamRequest extends MCPRequest {
-  params: {
-    prompt: string;
-    temperature?: number;
-    maxTokens?: number;
-    stopSequences?: string[];
-    streamEvents?: boolean;
-  };
-}
-
-export interface StreamResponse extends MCPResponse {
-  result: {
-    type: 'stream';
-    content: string;
-    done: boolean;
-    metadata?: {
-      timestamp: number;
-      model: string;
-      tokens?: number;
-    };
-  };
-}
-
 export interface GenerateRequest extends MCPRequest {
   params: {
     prompt: string;
@@ -69,6 +46,29 @@ export interface GenerateResponse extends MCPResponse {
   };
 }
 
+export interface StreamRequest extends MCPRequest {
+  params: {
+    prompt: string;
+    temperature?: number;
+    maxTokens?: number;
+    stopSequences?: string[];
+    streamEvents?: boolean;
+  };
+}
+
+export interface StreamResponse extends MCPResponse {
+  result: {
+    type: 'stream';
+    content: string;
+    done: boolean;
+    metadata?: {
+      timestamp: number;
+      model: string;
+      tokens?: number;
+    };
+  };
+}
+
 export interface CancelRequest extends MCPRequest {
   params: {
     requestId: string | number;
@@ -84,5 +84,20 @@ export interface ConfigureRequest extends MCPRequest {
       stopSequences?: string[];
       timeout?: number;
     };
+  };
+}
+
+export interface NotificationMessage {
+  jsonrpc: '2.0';
+  method: string;
+  params: any;
+}
+
+export interface ErrorNotification extends NotificationMessage {
+  method: 'notifications/error';
+  params: {
+    code: number;
+    message: string;
+    data?: any;
   };
 }

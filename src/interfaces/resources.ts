@@ -1,10 +1,11 @@
-import { MCPRequest, MCPResponse } from '../types';
+import { MCPRequest, MCPResponse } from '../types/protocols.js';
 
 export interface Resource {
   uri: string;
+  type: string;
   name: string;
   description?: string;
-  mimeType?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ResourceTemplate {
@@ -14,11 +15,23 @@ export interface ResourceTemplate {
   mimeType?: string;
 }
 
-export interface ListResourcesRequest extends MCPRequest {
-  method: 'resources/list';
+export interface ResourceContent {
+  content: string;
+  metadata?: {
+    mimeType?: string;
+    encoding?: string;
+    [key: string]: unknown;
+  };
 }
 
-export interface ListResourcesResponse extends MCPResponse {
+export interface ListResourcesRequest extends MCPRequest {
+  method: 'resources/list';
+  params: {
+    type?: string;
+  };
+}
+
+export interface ListResourcesResult extends MCPResponse {
   result: {
     resources: Resource[];
   };
@@ -31,14 +44,9 @@ export interface ReadResourceRequest extends MCPRequest {
   };
 }
 
-export interface ResourceContent {
-  uri: string;
-  mimeType?: string;
-  content: string;
-}
-
-export interface ReadResourceResponse extends MCPResponse {
+export interface ReadResourceResult extends MCPResponse {
   result: {
-    contents: ResourceContent[];
+    resource: Resource;
+    content: ResourceContent;
   };
 }

@@ -1,22 +1,22 @@
-import { MCPRequest, MCPResponse } from '../types';
-
-export interface PromptArgument {
-  name: string;
-  description?: string;
-  required?: boolean;
-}
+import { MCPRequest, MCPResponse } from '../types/protocols.js';
 
 export interface Prompt {
   name: string;
-  description?: string;
-  arguments?: PromptArgument[];
+  description: string;
+  template: string;
+  parameters?: {
+    name: string;
+    type: string;
+    description?: string;
+    required?: boolean;
+  }[];
 }
 
 export interface ListPromptsRequest extends MCPRequest {
   method: 'prompts/list';
 }
 
-export interface ListPromptsResponse extends MCPResponse {
+export interface ListPromptsResult extends MCPResponse {
   result: {
     prompts: Prompt[];
   };
@@ -26,7 +26,12 @@ export interface GetPromptRequest extends MCPRequest {
   method: 'prompts/get';
   params: {
     name: string;
-    arguments?: Record<string, string>;
+  };
+}
+
+export interface GetPromptResult extends MCPResponse {
+  result: {
+    prompt: Prompt;
   };
 }
 

@@ -1,3 +1,6 @@
+export * from './protocols.js';
+export * from './server.js';
+
 export interface ConnectionState {
   connectedAt: Date;
   lastMessageAt: Date;
