@@ -2,6 +2,13 @@
 
 Model Context Protocol (MCP) server implementation that enables Claude Desktop to interact with Google's Gemini AI models.
 
+## Reason for Fork
+
+- Typescript errors
+- Failing tests
+- MCP Server wouldn't connect to Claude Desktop
+- All fixed
+
 ## Features
 
 - Full MCP protocol support
@@ -28,8 +35,8 @@ Model Context Protocol (MCP) server implementation that enables Claude Desktop t
      {
        "mcpServers": {
          "gemini": {
-           "command": "npx",
-           "args": ["-y", "github:aliargun/mcp-server-gemini"],
+           "command": "mcp-server-gemini",
+           "args": ["--api-key", "${GEMINI_API_KEY}"],
            "env": {
              "GEMINI_API_KEY": "your_api_key_here"
            }
@@ -52,7 +59,7 @@ Model Context Protocol (MCP) server implementation that enables Claude Desktop t
 
 ```bash
 # Clone repository
-git clone https://github.com/aliargun/mcp-server-gemini.git
+git clone https://github.com/drumnation/mcp-server-gemini.git
 cd mcp-server-gemini
 
 # Install dependencies

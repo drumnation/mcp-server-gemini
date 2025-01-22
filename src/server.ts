@@ -1,4 +1,4 @@
-import WebSocket from 'ws';
+import { WebSocketServer, WebSocket, RawData } from 'ws';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { MCPHandlers } from './handlers.js';
 import { ProtocolManager } from './protocol.js';
@@ -8,7 +8,7 @@ import { ConnectionState } from './types/index.js';
 import http from 'http';
 
 export class MCPServer {
-  private wss: WebSocket.Server;
+  private wss: WebSocketServer;
   private protocol: ProtocolManager;
   private handlers: MCPHandlers;
   private clients: Map<WebSocket, ConnectionState>;
@@ -28,7 +28,7 @@ export class MCPServer {
     this.httpServer = http.createServer(this.handleHttpRequest.bind(this));
     
     // Create WebSocket server attached to HTTP server
-    this.wss = new WebSocket.Server({ server: this.httpServer });
+    this.wss = new WebSocketServer({ server: this.httpServer });
     
     this.setupWebSocketServer();
     
@@ -80,7 +80,7 @@ export class MCPServer {
     
     this.clients.set(ws, state);
 
-    ws.on('message', async (data: WebSocket.RawData) => {
+    ws.on('message', async (data: RawData) => {
       try {
         const message = data.toString();
         const request: MCPRequest = JSON.parse(message);

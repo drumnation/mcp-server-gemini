@@ -42,7 +42,7 @@ The configuration file location depends on your operating system:
   "mcpServers": {
     "gemini": {
       "command": "npx",
-      "args": ["-y", "github:aliargun/mcp-server-gemini"],
+      "args": ["-y", "github:drumnation/mcp-server-gemini"],
       "env": {
         "GEMINI_API_KEY": "your_api_key_here"
       }
@@ -66,7 +66,7 @@ The configuration file location depends on your operating system:
   "mcpServers": {
     "gemini": {
       "command": "npx",
-      "args": ["-y", "github:aliargun/mcp-server-gemini"],
+      "args": ["-y", "github:dmieloch/mcp-server-gemini"],
       "env": {
         "GEMINI_API_KEY": "your_api_key_here",
         "DEBUG": "true"
@@ -82,7 +82,7 @@ The configuration file location depends on your operating system:
   "mcpServers": {
     "gemini": {
       "command": "npx",
-      "args": ["-y", "github:aliargun/mcp-server-gemini"],
+      "args": ["-y", "github:dmieloch/mcp-server-gemini"],
       "env": {
         "GEMINI_API_KEY": "your_api_key_here",
         "PORT": "3006"
@@ -91,52 +91,3 @@ The configuration file location depends on your operating system:
   }
 }
 ```
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Configuration File Not Found**
-   - Run Claude Desktop at least once
-   - Create the directory if it doesn't exist
-   - Create an empty JSON file if needed
-
-2. **Connection Errors**
-   - Check if the port is available
-   - Verify internet connection
-   - Check firewall settings
-
-3. **API Key Issues**
-   - Verify the key is correct
-   - Ensure no whitespace in the key
-   - Check API key permissions
-
-### Error Messages
-
-1. **"Cannot connect to MCP server"**
-   - Check if the server is running
-   - Verify port settings
-   - Check network connectivity
-
-2. **"Invalid API key"**
-   - Verify API key in config
-   - Regenerate API key if needed
-   - Check for copying errors
-
-## Security Notes
-
-1. **API Key Storage**
-   - Keep your API key secure
-   - Don't share the configuration file
-   - Regularly rotate API keys
-
-2. **File Permissions**
-   - Set appropriate file permissions
-   - Restrict access to config file
-   - Use environment variables when possible
-
-## Additional Resources
-
-1. [Gemini API Documentation](https://ai.google.dev/docs)
-2. [Claude Desktop Documentation](https://www.anthropic.com/claude)
-3. [MCP Protocol Specification](https://modelcontextprotocol.io)
